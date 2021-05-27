@@ -38,9 +38,10 @@ class Countdown {
             default:
                 color = ThreadColor.ANSI_GREEN;
         }
-
-        for( i=10; i > 0; i--) {
-            System.out.println(color + Thread.currentThread().getName() + ": i =" + i);
+        synchronized (this) {
+            for( i=10; i > 0; i--) {
+                System.out.println(color + Thread.currentThread().getName() + ": i =" + i);
+            }
         }
     }
 }
