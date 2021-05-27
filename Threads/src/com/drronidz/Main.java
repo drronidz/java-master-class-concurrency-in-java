@@ -5,8 +5,7 @@ package com.drronidz;/*
     CREATED ON : 1:52 PM
 */
 
-import static com.drronidz.ThreadColor.ANSI_GREEN;
-import static com.drronidz.ThreadColor.ANSI_PURPLE;
+import static com.drronidz.ThreadColor.*;
 
 public class Main {
 
@@ -29,14 +28,23 @@ public class Main {
 
         Thread myRunnableThreadOne = new Thread(new MyRunnable());
         myRunnableThreadOne.start();
+//        anotherThread.interrupt();
 
         Thread myRunnableThreadTwo = new Thread(new MyRunnable(){
             @Override
             public void run() {
-                super.run();
+                System.out.println(ANSI_RED + "Hello from the anonymous class's implementation of run()");
+                try {
+                    anotherThread.join();
+                    System.out.println(ANSI_RED + "AnotherThread terminated, or timed out. so I'm running again");
+                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+                    System.out.println(ANSI_RED + "I could't wait after all. I was interrupted");
+                }
             }
         });
         myRunnableThreadTwo.start();
+
 
         System.out.println(ANSI_PURPLE + "Hello again from the main thread.");
     }
