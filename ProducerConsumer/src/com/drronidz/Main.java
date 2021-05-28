@@ -5,9 +5,11 @@ package com.drronidz;/*
     CREATED ON : 12:23 AM
 */
 
+import javax.swing.plaf.synth.SynthOptionPaneUI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.drronidz.Main.EOF;
@@ -18,14 +20,35 @@ public class Main {
     public static void main(String[] args) {
         List<String> buffer = new ArrayList<String>();
         ReentrantLock bufferLock = new ReentrantLock();
+
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+
         MyProducer producer = new MyProducer(buffer, ThreadColor.ANSI_YELLOW, bufferLock);
         MyConsumer consumerOne = new MyConsumer(buffer, ThreadColor.ANSI_GREEN, bufferLock);
         MyConsumer consumerTwo = new MyConsumer(buffer, ThreadColor.ANSI_CYAN, bufferLock);
 
-        new Thread(producer).start();
-        new Thread(consumerOne).start();
-        new Thread(consumerTwo).start();
+        executorService.execute(producer);
+        executorService.execute(consumerOne);
+        executorService.execute(consumerTwo);
 
+        Future<String>  future = executorService.submit(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                System.out.println(ThreadColor.ANSI_WHITE + "I'm being printed for the Callable class");
+                return "This is the callable result";
+            }
+        });
+
+        try {
+            System.out.println(future.get());
+        } catch (ExecutionException e) {
+            System.out.println("Something went wrong");
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            System.out.println("Thread running the task was interrupted");
+            e.printStackTrace();
+        }
+        executorService.shutdown();
     }
 }
 
