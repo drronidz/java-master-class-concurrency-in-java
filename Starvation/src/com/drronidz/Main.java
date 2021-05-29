@@ -5,9 +5,11 @@ package com.drronidz;/*
     CREATED ON : 12:17 AM
 */
 
+import java.util.concurrent.locks.ReentrantLock;
+
 public class Main {
 
-    private static Object lock = new Object();
+    private static ReentrantLock lock = new ReentrantLock(true);
 
     public static void main(String[] args) {
         Thread threadOne = new Thread(new Worker(ThreadColor.ANSI_PURPLE), "Priority 10");
@@ -22,11 +24,11 @@ public class Main {
         threadFour.setPriority(4);
         threadFive.setPriority(2);
 
-        threadOne.start();
-        threadTwo.start();
         threadThree.start();
-        threadFour.start();
+        threadTwo.start();
         threadFive.start();
+        threadFour.start();
+        threadOne.start();
 
     }
     private static class Worker implements Runnable {
@@ -40,10 +42,15 @@ public class Main {
         @Override
         public void run() {
             for(int i=0; i<100; i++) {
-                System.out.format(threadColor + "%s: runCount = %d\n",
-                        Thread.currentThread().getName(),
-                        runCount++);
-                // execute critical section of code
+                lock.lock();
+                try {
+                    System.out.format(threadColor + "%s: runCount = %d\n",
+                            Thread.currentThread().getName(),
+                            runCount++);
+                    // execute critical section of code
+                } finally {
+                    lock.unlock();
+                }
             }
         }
     }
