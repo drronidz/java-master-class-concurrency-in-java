@@ -17,11 +17,13 @@ public class BankAccount {
 
     private Lock lock;
 
+    private String here;
 
     public BankAccount(String accountNumber, double balance) {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.lock = new ReentrantLock();
+        this.here = "0";
     }
 
 //    public synchronized void deposit(double amount) {
@@ -44,10 +46,13 @@ public class BankAccount {
 //        } finally {
 //            lock.unlock();
 //        }
+
+        boolean status = false;
         try {
             if(lock.tryLock(1000, TimeUnit.MILLISECONDS)) {
                 try {
                     balance += amount;
+                    status = true;
                 } finally {
                     lock.unlock();
                 }
@@ -58,6 +63,7 @@ public class BankAccount {
             e.printStackTrace();
             // do something here
         }
+        System.out.println("Transaction status = " + status);
     }
 
     public void withdraw(double amount) {
@@ -72,11 +78,12 @@ public class BankAccount {
 //        } finally {
 //            lock.unlock();
 //        }
-
+        boolean status = false;
         try {
             if(lock.tryLock(1000,TimeUnit.MILLISECONDS)) {
                 try {
                     balance -= amount;
+                    status = true;
                 } finally {
                     lock.unlock();
                 }
@@ -87,6 +94,7 @@ public class BankAccount {
             e.printStackTrace();
             // do something here
         }
+        System.out.println("Transaction status = " + status);
     }
 
     public String getAccountNumber() {
